@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <g id="menu" transform="translate(-1743 -1920)">
+    <rect id="box" width="32" height="32" transform="translate(1743 1920)" fill="rgba(255,255,255,0.07)" opacity="0"/>
+    <g id="close_icon" transform="translate(-4 -2)">
+      <line id="line" x1="12" y2="12" transform="translate(1757 1932)" fill="none" stroke="#fff" stroke-width="1.5"/>
+      <line id="line-2" data-name="line" x1="12" y2="12" transform="translate(1769 1932) rotate(90)" fill="none" stroke="#fff" stroke-width="1.5"/>
+    </g>
+  </g>
+</svg>

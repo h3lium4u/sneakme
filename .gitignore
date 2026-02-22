@@ -1,0 +1,9 @@
+.env
+plan_az.com.zip
+temp_original/
+temp_original_index.html
+temp.html
+_DataURI/
+*.log
+node_modules/
+.DS_Store
