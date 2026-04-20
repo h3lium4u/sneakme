@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // 5. A — Z Scramble Animation
     const scrambleEl = document.getElementById('scramble');
     if (scrambleEl) {
-        const FINAL_TEXT = "A -- Z";
+        const FINAL_TEXT = "CODE -- AI";
         const LENGTH = FINAL_TEXT.length;
         const ALPHABETS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
@@ -275,26 +275,42 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     if (marqueeTweens.length > 0) {
+        let targetSpeed = 1;
+        let currentSpeed = 1;
+
         ScrollTrigger.create({
             trigger: "#main__contents__wr00",
             start: "top bottom",
             end: "bottom top",
+            onEnter: () => marqueeTweens.forEach(tween => tween.play()),
+            onLeave: () => marqueeTweens.forEach(tween => tween.pause()),
+            onEnterBack: () => marqueeTweens.forEach(tween => tween.play()),
+            onLeaveBack: () => marqueeTweens.forEach(tween => tween.pause()),
             onUpdate: (self) => {
-                const velocityScale = 1 + Math.abs(self.getVelocity() / 100);
-                marqueeTweens.forEach(tween => {
-                    gsap.to(tween, {
-                        timeScale: velocityScale,
-                        duration: 0.1,
-                        overwrite: true
-                    });
-                });
+                targetSpeed = 1 + Math.abs(self.getVelocity() / 100);
+            },
+            onLeave: () => {
+                targetSpeed = 1;
+                marqueeTweens.forEach(tween => tween.pause());
+            },
+            onLeaveBack: () => {
+                targetSpeed = 1;
+                marqueeTweens.forEach(tween => tween.pause());
             }
         });
 
+        // Optimized smooth speed update using ticker (prevents spamming new tweens)
+        gsap.ticker.add(() => {
+            if (currentSpeed !== targetSpeed) {
+                currentSpeed += (targetSpeed - currentSpeed) * 0.1;
+                if (Math.abs(currentSpeed - targetSpeed) < 0.01) currentSpeed = targetSpeed;
+                marqueeTweens.forEach(tween => tween.timeScale(currentSpeed));
+            }
+        });
+
+        // Reset to normal on scroll end
         ScrollTrigger.addEventListener("scrollEnd", () => {
-            marqueeTweens.forEach(tween => {
-                gsap.to(tween, { timeScale: 1, duration: 1 });
-            });
+            targetSpeed = 1;
         });
     }
 
@@ -315,6 +331,7 @@ document.addEventListener("DOMContentLoaded", () => {
         cards.forEach((card, i) => {
             const img = card.querySelector('.card__img');
             const overlay = card.querySelector('.card__text__overlay');
+            const explanation = card.querySelector('.card__explanation');
 
             gsap.set(card, { zIndex: i + 1 });
 
@@ -323,11 +340,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 gsap.set(card, { clipPath: 'inset(0% 0% 0% 0% round 0px)', opacity: 1 });
                 gsap.set(img, { scale: 1.08 });
                 gsap.set(overlay, { opacity: 1, y: 0 });
+                if (explanation) gsap.set(explanation, { opacity: 1, y: 0 });
             } else {
-                // Cards 1-3: hidden below via clip-path (ready to wipe up over previous)
+                // Cards 1-3: hidden below via clip-path
                 gsap.set(card, { clipPath: 'inset(100% 0% 0% 0% round 28px)', opacity: 1 });
                 gsap.set(img, { scale: 1.2 });
                 gsap.set(overlay, { opacity: 0, y: 40 });
+                if (explanation) gsap.set(explanation, { opacity: 0, y: 50 });
             }
         });
 
@@ -350,15 +369,18 @@ document.addEventListener("DOMContentLoaded", () => {
             const nextCard = cards[i + 1];
             const currentImg = currentCard.querySelector('.card__img');
             const currentOverlay = currentCard.querySelector('.card__text__overlay');
+            const currentExplanation = currentCard.querySelector('.card__explanation');
+
             const nextImg = nextCard.querySelector('.card__img');
             const nextOverlay = nextCard.querySelector('.card__text__overlay');
+            const nextExplanation = nextCard.querySelector('.card__explanation');
 
             // --- Phase 1: Current card zooms & fades its text out ---
             tl.to(currentOverlay, { opacity: 0, y: -30, duration: 0.4, ease: 'power2.in' })
+                .to(currentExplanation, { opacity: 0, y: -30, duration: 0.4, ease: 'power2.in' }, '<')
                 .to(currentImg, { scale: 1.18, duration: 0.6, ease: 'power2.in' }, '<');
 
             // --- Phase 2: Next card wipes UP with a clip-path reveal ---
-            // Clip goes from inset(100%) → inset(0%) at the same time
             tl.to(nextCard, {
                 clipPath: 'inset(0% 0% 0% 0% round 0px)',
                 duration: 0.8,
@@ -371,7 +393,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 }, '<');
 
             // --- Phase 3: Text of new card fades in with a slight upward drift ---
-            tl.to(nextOverlay, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' });
+            tl.to(nextOverlay, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' })
+                .to(nextExplanation, { opacity: 1, y: 0, duration: 0.5, ease: 'power2.out' }, '-=0.3');
 
             // Hold on the new card briefly
             tl.to({}, { duration: 0.4 });
@@ -461,11 +484,22 @@ document.addEventListener("DOMContentLoaded", () => {
     // 7. Marquee Text
     const marqueeContent = document.querySelector('.marquee__content');
     if (marqueeContent) {
-        gsap.to(marqueeContent, {
+        const marqueeTween = gsap.to(marqueeContent, {
             xPercent: -50,
             ease: "none",
             duration: 20,
-            repeat: -1
+            repeat: -1,
+            paused: true // Start paused
+        });
+
+        ScrollTrigger.create({
+            trigger: marqueeContent,
+            start: "top bottom",
+            end: "bottom top",
+            onEnter: () => marqueeTween.play(),
+            onLeave: () => marqueeTween.pause(),
+            onEnterBack: () => marqueeTween.play(),
+            onLeaveBack: () => marqueeTween.pause()
         });
     }
 
@@ -1110,15 +1144,28 @@ function initPhilosophySection() {
     if (marquee) {
         // Clone for seamless loop
         const firstChild = marquee.children[0];
-        for (let i = 0; i < 3; i++) {
-            marquee.appendChild(firstChild.cloneNode(true));
+        if (marquee.children.length < 4) { // Avoid double cloning if re-initted
+            for (let i = 0; i < 3; i++) {
+                marquee.appendChild(firstChild.cloneNode(true));
+            }
         }
 
-        gsap.to(marquee, {
+        const philTween = gsap.to(marquee, {
             xPercent: -50,
             repeat: -1,
             duration: 10,
-            ease: "linear"
+            ease: "linear",
+            paused: true
+        });
+
+        ScrollTrigger.create({
+            trigger: philSection,
+            start: "top bottom",
+            end: "bottom top",
+            onEnter: () => philTween.play(),
+            onLeave: () => philTween.pause(),
+            onEnterBack: () => philTween.play(),
+            onLeaveBack: () => philTween.pause()
         });
     }
 

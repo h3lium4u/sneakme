@@ -1,0 +1,16 @@
+{
+  "name": "f1zz4n-portfolio",
+  "version": "1.0.0",
+  "description": "Portfolio with AI Chatbot",
+  "main": "index.html",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "ai": "^2.2.37",
+    "openai-edge": "^1.2.2",
+    "@supabase/supabase-js": "^2.39.7"
+  }
+}

@@ -300,6 +300,7 @@ a {
     display: flex;
     gap: 10vw;
     width: max-content;
+    will-change: transform;
 }
 
 .lfg-marquee span {
@@ -383,6 +384,21 @@ a {
     letter-spacing: 5px;
     line-height: 1;
     white-space: nowrap;
+}
+
+.scroll__box {
+    margin-top: 30px;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.scroll__box .tx {
+    font-family: var(--font-kr);
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 2px;
+    color: rgba(255, 255, 255, 0.4);
+    text-transform: uppercase;
 }
 
 .scramble .special {
@@ -509,6 +525,7 @@ a {
 .explore-marquee {
     display: flex;
     white-space: nowrap;
+    will-change: transform;
 }
 
 .explore-marquee a {
@@ -915,14 +932,41 @@ a {
     pointer-events: none;
 }
 
-/* Text overlay pinned to the bottom-left */
 .card__text__overlay {
     position: absolute;
-    bottom: 60px;
-    left: 64px;
-    right: 64px;
+    bottom: 80px;
+    left: 80px;
+    right: 80px;
     z-index: 3;
     pointer-events: none;
+}
+
+.card__title__box {
+    max-width: 60%;
+}
+
+.card__explanation {
+    position: absolute;
+    top: 50%;
+    right: 80px;
+    transform: translateY(-50%);
+    max-width: 480px;
+    z-index: 5;
+    pointer-events: none;
+    opacity: 0;
+    transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card__explanation p {
+    font-family: var(--font-en);
+    font-size: clamp(18px, 1.8vw, 24px);
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.8);
+    text-align: right;
+    font-weight: 500;
+    text-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .card__num {
@@ -942,12 +986,12 @@ a {
 
 .card__title {
     font-family: var(--font-en);
-    font-size: clamp(36px, 5.5vw, 80px);
+    font-size: clamp(36px, 5.5vw, 90px);
     font-weight: 800;
     color: #fff;
     letter-spacing: 1px;
     line-height: 0.95;
-    margin-bottom: 18px;
+    margin-bottom: 24px;
     text-transform: uppercase;
 }
 
@@ -1305,6 +1349,7 @@ a {
     display: flex;
     white-space: nowrap;
     align-items: center;
+    will-change: transform;
 }
 
 .marquee__item {
@@ -1985,6 +2030,33 @@ a {
 .action-btn:hover {
     background: #fff;
     color: #000;
+}
+
+@media (max-width: 1024px) {
+    .card__text__overlay {
+        left: 40px;
+        right: 40px;
+        bottom: 40px;
+    }
+
+    .card__title__box {
+        max-width: 100%;
+    }
+
+    .card__explanation {
+        top: auto;
+        bottom: 120px;
+        right: 40px;
+        left: 40px;
+        transform: none;
+        max-width: 100%;
+        text-align: left;
+    }
+
+    .card__explanation p {
+        text-align: left;
+        font-size: 16px;
+    }
 }
 
 @media (max-width: 480px) {
