@@ -2,10 +2,6 @@
   "name": "f1zz4n-portfolio",
   "version": "1.0.0",
   "description": "Portfolio with AI Chatbot",
-  "scripts": {
-    "build": "echo 'Static build - skipping...'",
-    "start": "echo 'No start script needed for static site'"
-  },
   "dependencies": {
     "ai": "^2.2.37",
     "openai-edge": "^1.2.2",
