@@ -2,11 +2,9 @@
   "name": "f1zz4n-portfolio",
   "version": "1.0.0",
   "description": "Portfolio with AI Chatbot",
-  "main": "index.html",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start"
+    "build": "echo 'Static build - skipping...'",
+    "start": "echo 'No start script needed for static site'"
   },
   "dependencies": {
     "ai": "^2.2.37",
