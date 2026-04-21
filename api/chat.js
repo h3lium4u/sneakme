@@ -1,8 +1,7 @@
 import { OpenAIStream, StreamingTextResponse } from 'ai';
 import { createClient } from '@supabase/supabase-js';
 
-// Edge runtime is necessary for smooth streaming from Groq
-export const config = { runtime: 'edge' };
+// Netlify Functions V2 automatically handle standard Request/Response
 
 // Initialize Supabase lazily
 let supabase;
