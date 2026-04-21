@@ -3,11 +3,19 @@
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
 /* =========== RESET & VARIABLES =========== */
+@font-face {
+    font-family: 'Rockybilly';
+    src: url('../fonts/Rockybilly.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
 :root {
     --bg: #000;
     --text: #fff;
     --font-en: 'Archivo', sans-serif;
     --font-kr: 'Pretendard', sans-serif;
+    --font-geisha: 'Rockybilly', cursive;
 }
 
 * {
@@ -221,16 +229,33 @@ a {
 /* =========== LOADING OVERLAY =========== */
 .loading {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
     background: #000;
     z-index: 9000;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    transition: opacity 0.6s ease;
+    gap: 40px;
+    transition: opacity 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+    overflow: hidden;
+}
+
+/* Particles container (fills full screen) */
+.loader-particles {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+}
+
+.loader-particle {
+    position: absolute;
+    width: 4px; height: 4px;
+    background: #fff;
+    border-radius: 50%;
+    opacity: 0;
 }
 
 .loading__bar {
@@ -254,17 +279,24 @@ a {
 }
 
 @keyframes loadingSlide {
-    0% {
-        left: -100%;
-    }
+    0%   { left: -100%; }
+    50%  { left: 0; }
+    100% { left: 100%; }
+}
 
-    50% {
-        left: 0;
-    }
+/* Tagline */
+.loader-tagline {
+    font-family: monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: rgba(255,255,255,0.35);
+    position: absolute;
+    bottom: 60px;
+}
 
-    100% {
-        left: 100%;
-    }
+@keyframes loaderPulse {
+    0%, 100% { opacity: 0.4; letter-spacing: 8px; }
+    50%       { opacity: 1;   letter-spacing: 10px; }
 }
 
 /* =========== HERO SECTION & MARQUEE =========== */
@@ -528,7 +560,7 @@ a {
     will-change: transform;
 }
 
-.explore-marquee a {
+.explore-marquee span {
     font-size: clamp(24px, 3vw, 48px);
     font-weight: 800;
     color: #fff;
@@ -540,7 +572,7 @@ a {
     font-family: 'Silkscreen', cursive, monospace;
 }
 
-.explore-marquee a:hover {
+.explore-marquee span:hover {
     color: #fff;
     /* Removed yellow highlight */
 }
@@ -675,7 +707,7 @@ a {
     line-height: 1.1;
     font-weight: 700;
     color: #fff;
-    margin-bottom: 40px;
+    margin-bottom: 80px;
     position: relative;
 }
 
@@ -683,10 +715,10 @@ a {
     display: inline-block;
     width: 400px;
     text-align: left;
-    height: 70px;
-    vertical-align: -15px;
+    height: 120px;
+    vertical-align: -50px;
     position: relative;
-    margin-left: 15px;
+    margin-left: 0px;
 }
 
 .dropping-texts>div {
@@ -698,6 +730,7 @@ a {
     color: #00ffcc;
     white-space: nowrap;
     line-height: 1.2;
+    font-family: var(--font-geisha);
 }
 
 .dropping-texts>div:nth-child(1) {
@@ -731,14 +764,14 @@ a {
     }
 
     5% {
-        font-size: clamp(40px, 6vw, 85px);
+        font-size: clamp(30px, 5vw, 70px);
         opacity: 1;
         margin-left: 0px;
         margin-top: 0px;
     }
 
     20% {
-        font-size: clamp(40px, 6vw, 85px);
+        font-size: clamp(30px, 5vw, 70px);
         opacity: 1;
         margin-left: 0px;
         margin-top: 0px;
@@ -776,14 +809,14 @@ a {
     }
 
     5% {
-        font-size: clamp(40px, 6vw, 85px);
+        font-size: clamp(30px, 5vw, 70px);
         opacity: 1;
         margin-left: 0px;
         margin-top: 0px;
     }
 
     30% {
-        font-size: clamp(40px, 6vw, 85px);
+        font-size: clamp(30px, 5vw, 70px);
         opacity: 1;
         margin-left: 0px;
         margin-top: 0px;
@@ -1061,6 +1094,7 @@ a {
     position: relative;
     z-index: 2;
     overflow: hidden;
+    cursor: default;
 }
 
 /* =========== USP SECTION =========== */
@@ -2075,5 +2109,72 @@ a {
 
     .action-btn {
         width: 100%;
+    }
+}
+
+/* =========== MOBILE BLOCK OVERLAY =========== */
+.mobile-block-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 1000000;
+    display: none; /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
+
+.mb-content {
+    text-align: center;
+    max-width: 400px;
+}
+
+.mb-logo {
+    font-family: var(--font-en);
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    color: #fff;
+    margin-bottom: 60px;
+}
+
+.mb-title {
+    font-family: 'Host Grotesk', sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #fff;
+    margin-bottom: 24px;
+}
+
+.mb-desc {
+    font-size: 16px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 40px;
+    font-weight: 400;
+}
+
+.mb-hint {
+    font-family: monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    color: #fff;
+    padding: 15px 25px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    display: inline-block;
+    border-radius: 4px;
+}
+
+/* MEDIA QUERY FOR MOBILE BLOCKING */
+@media (max-width: 1024px) {
+    .mobile-block-overlay {
+        display: flex;
+    }
+    body {
+        overflow: hidden !important;
     }
 }

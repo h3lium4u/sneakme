@@ -625,6 +625,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 9. Services Stack Animation
     const stackCards = gsap.utils.toArray(".stack__card");
+    const stackVideos = stackCards.map(card => card.querySelector('.stack__bg__video'));
+
+    function manageStackVideos(activeIndex) {
+        stackVideos.forEach((video, idx) => {
+            if (video) {
+                if (idx === activeIndex) {
+                    video.play().catch(e => console.log("Video Play Blocked:", e));
+                } else {
+                    video.pause();
+                }
+            }
+        });
+    }
+
     if (stackCards.length > 0) {
         gsap.set(stackCards[0], { y: "0%" });
         gsap.set(stackCards[1], { y: "100%" });
@@ -637,18 +651,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 start: "top top",
                 end: "+=3000",
                 scrub: 1,
-                pin: true
+                pin: true,
+                onEnter: () => manageStackVideos(0), // Play first video on enter
+                onLeave: () => manageStackVideos(-1), // Pause all on leave
+                onEnterBack: () => manageStackVideos(3), // Play last video on enter back (assuming card 3 is top)
+                onLeaveBack: () => manageStackVideos(-1) // Pause all on leave back
             }
         });
 
-        stackTl.to({}, { duration: 1 })
-            .to(stackCards[1], { y: 0, ease: "power3.out", duration: 1 })
+        stackTl.to({}, { duration: 1, onStart: () => manageStackVideos(0), onReverseComplete: () => manageStackVideos(0) })
+            .to(stackCards[1], { y: 0, ease: "power3.out", duration: 1, onStart: () => manageStackVideos(1), onReverseComplete: () => manageStackVideos(0) })
             .to(stackCards[0], { scale: 0.85, filter: "blur(10px)", opacity: 0.5, ease: "power3.out", duration: 1 }, "<")
 
-            .to(stackCards[2], { y: 0, ease: "power3.out", duration: 1 })
+            .to(stackCards[2], { y: 0, ease: "power3.out", duration: 1, onStart: () => manageStackVideos(2), onReverseComplete: () => manageStackVideos(1) })
             .to(stackCards[1], { scale: 0.85, filter: "blur(10px)", opacity: 0.5, ease: "power3.out", duration: 1 }, "<")
 
-            .to(stackCards[3], { y: 0, ease: "power3.out", duration: 1 })
+            .to(stackCards[3], { y: 0, ease: "power3.out", duration: 1, onStart: () => manageStackVideos(3), onReverseComplete: () => manageStackVideos(2) })
             .to(stackCards[2], { scale: 0.85, filter: "blur(10px)", opacity: 0.5, ease: "power3.out", duration: 1 }, "<");
     }
 
