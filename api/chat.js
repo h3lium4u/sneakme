@@ -8,6 +8,7 @@ export const config = { runtime: 'edge' };
 let supabase;
 
 export default async function handler(req) {
+    console.log('AI_BRAIN: Function called');
     // 0. Validate Environment
     const required = ['SUPABASE_URL', 'HUGGINGFACE_TOKEN', 'GROQ_API_KEY', 'SUPABASE_SERVICE_ROLE_KEY'];
     const missing = required.filter(key => !process.env[key]);
@@ -52,6 +53,7 @@ export default async function handler(req) {
 
         const result = await hfResponse.json();
         const query_embedding = Array.isArray(result) ? (Array.isArray(result[0]) ? result[0] : result) : result;
+        console.log('AI_BRAIN: Embedding generated successfully');
 
         // 2. Search Supabase
         console.log('AI_BRAIN: Searching Supabase...');
@@ -64,7 +66,7 @@ export default async function handler(req) {
         if (dbError) throw new Error(`DB_Error: ${dbError.message}`);
 
         const context = documents?.map(doc => doc.content).join('\n') || 'No context found.';
-        console.log(`AI_BRAIN: Context found (${documents?.length || 0} chunks).`);
+        console.log(`AI_BRAIN: Context found (${documents?.length || 0} chunks). Search duration: ${new Date().toISOString()}`);
 
         // 2.5 Log question for training
         let queryId = null;
