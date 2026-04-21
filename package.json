@@ -2,6 +2,9 @@
   "name": "f1zz4n-portfolio",
   "version": "1.0.0",
   "description": "Portfolio with AI Chatbot",
+  "scripts": {
+    "build": "echo 'No build step required'"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.104.0",
     "ai": "^2.2.37",
