@@ -627,13 +627,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const stackCards = gsap.utils.toArray(".stack__card");
     const stackVideos = stackCards.map(card => card.querySelector('.stack__bg__video'));
 
-    function manageStackVideos(activeIndex) {
+    function manageStackVideos(activeIndices) {
+        if (!Array.isArray(activeIndices)) activeIndices = [activeIndices];
+        
         stackVideos.forEach((video, idx) => {
             if (video) {
-                if (idx === activeIndex) {
-                    video.play().catch(e => console.log("Video Play Blocked:", e));
+                if (activeIndices.includes(idx)) {
+                    if (video.paused) {
+                        video.play().catch(e => console.log("Video Play Blocked:", e));
+                    }
                 } else {
-                    video.pause();
+                    if (!video.paused) {
+                        video.pause();
+                    }
                 }
             }
         });
@@ -654,21 +660,59 @@ document.addEventListener("DOMContentLoaded", () => {
                 pin: true,
                 onEnter: () => manageStackVideos(0), // Play first video on enter
                 onLeave: () => manageStackVideos(-1), // Pause all on leave
-                onEnterBack: () => manageStackVideos(3), // Play last video on enter back (assuming card 3 is top)
-                onLeaveBack: () => manageStackVideos(-1) // Pause all on leave back
+                onEnterBack: () => manageStackVideos(3), // Play last video on enter back
+                onLeaveBack: () => manageStackVideos(-1), // Pause all on leave back
+                onUpdate: function(self) {
+                    let progress = self.progress;
+                    let activeIndices = [0];
+                    if (progress < 0.25) activeIndices = [0];
+                    else if (progress >= 0.25 && progress < 0.50) activeIndices = [0, 1];
+                    else if (progress >= 0.50 && progress < 0.75) activeIndices = [1, 2];
+                    else if (progress >= 0.75 && progress < 1.0) activeIndices = [2, 3];
+                    else activeIndices = [3];
+                    
+                    let activeStr = activeIndices.join(',');
+                    if (window.currentStackIndex !== activeStr) {
+                        window.currentStackIndex = activeStr;
+                        manageStackVideos(activeIndices);
+                    }
+                }
             }
         });
 
-        stackTl.to({}, { duration: 1, onStart: () => manageStackVideos(0), onReverseComplete: () => manageStackVideos(0) })
-            .to(stackCards[1], { y: 0, ease: "power3.out", duration: 1, onStart: () => manageStackVideos(1), onReverseComplete: () => manageStackVideos(0) })
-            .to(stackCards[0], { scale: 0.85, filter: "blur(10px)", opacity: 0.5, ease: "power3.out", duration: 1 }, "<")
+        stackTl.to({}, { duration: 1 })
+            // Card 1 sliding up
+            .to(stackCards[1], { y: 0, ease: "power3.out", duration: 1, force3D: true })
+            .to(stackCards[0], { scale: 0.85, filter: "blur(6px)", opacity: 0.5, ease: "power3.out", duration: 1, force3D: true }, "<")
 
-            .to(stackCards[2], { y: 0, ease: "power3.out", duration: 1, onStart: () => manageStackVideos(2), onReverseComplete: () => manageStackVideos(1) })
-            .to(stackCards[1], { scale: 0.85, filter: "blur(10px)", opacity: 0.5, ease: "power3.out", duration: 1 }, "<")
+            // Card 2 sliding up
+            .to(stackCards[2], { y: 0, ease: "power3.out", duration: 1, force3D: true })
+            .to(stackCards[1], { scale: 0.85, filter: "blur(6px)", opacity: 0.5, ease: "power3.out", duration: 1, force3D: true }, "<")
+            .to(stackCards[0], { opacity: 0, duration: 0.5, ease: "power3.out", force3D: true }, "<") // Fade out deeply buried card
 
-            .to(stackCards[3], { y: 0, ease: "power3.out", duration: 1, onStart: () => manageStackVideos(3), onReverseComplete: () => manageStackVideos(2) })
-            .to(stackCards[2], { scale: 0.85, filter: "blur(10px)", opacity: 0.5, ease: "power3.out", duration: 1 }, "<");
+            // Card 3 sliding up
+            .to(stackCards[3], { y: 0, ease: "power3.out", duration: 1, force3D: true })
+            .to(stackCards[2], { scale: 0.85, filter: "blur(6px)", opacity: 0.5, ease: "power3.out", duration: 1, force3D: true }, "<")
+            .to(stackCards[1], { opacity: 0, duration: 0.5, ease: "power3.out", force3D: true }, "<"); // Fade out deeply buried card
     }
+
+    // 10. Global Video Intersection Observer (Pause when out of view to reduce lag)
+    const videoObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            const video = entry.target;
+            if (video.classList.contains('stack__bg__video')) return; // handled by manageStackVideos
+            
+            if (entry.isIntersecting) {
+                video.play().catch(e => console.log("Global video play blocked:", e));
+            } else {
+                video.pause();
+            }
+        });
+    }, { threshold: 0.05 });
+
+    document.querySelectorAll('video[autoplay]').forEach(video => {
+        videoObserver.observe(video);
+    });
 
     // 11. Header background on scroll
     const header = document.querySelector('.header');
