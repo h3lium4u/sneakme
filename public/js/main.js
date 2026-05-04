@@ -636,11 +636,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (video.paused) {
                         video.play().catch(e => console.log("Video Play Blocked:", e));
                     }
-                } else {
-                    if (!video.paused) {
-                        video.pause();
-                    }
                 }
+                // Removed the pause() branch to keep everything loaded/buffered
             }
         });
     }
@@ -696,22 +693,9 @@ document.addEventListener("DOMContentLoaded", () => {
             .to(stackCards[1], { opacity: 0, duration: 0.5, ease: "power3.out", force3D: true }, "<"); // Fade out deeply buried card
     }
 
-    // 10. Global Video Intersection Observer (Pause when out of view to reduce lag)
-    const videoObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            const video = entry.target;
-            if (video.classList.contains('stack__bg__video')) return; // handled by manageStackVideos
-            
-            if (entry.isIntersecting) {
-                video.play().catch(e => console.log("Global video play blocked:", e));
-            } else {
-                video.pause();
-            }
-        });
-    }, { threshold: 0.05 });
-
+    // Removed video pausing IntersectionObserver to ensure all videos stay loaded
     document.querySelectorAll('video[autoplay]').forEach(video => {
-        videoObserver.observe(video);
+        video.play().catch(e => console.log("Global video play:", e));
     });
 
     // 11. Header background on scroll
